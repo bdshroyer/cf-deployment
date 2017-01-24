@@ -290,6 +290,10 @@ instance_groups:
             ca_cert: nil
             client_cert: nil
             client_key: nil
+          auctioneer: &diego_auctioneer_client_properties
+            ca_cert: "((diego_auctioneer.ca))"
+            client_cert: "((diego_auctioneer_client.certificate))"
+            client_key: "((diego_auctioneer_client.private_key))"
           ca_cert: "((diego_bbs.ca))"
           server_cert: "((diego_bbs_server.certificate))"
           server_key: "((diego_bbs_server.private_key))"
@@ -493,6 +497,9 @@ instance_groups:
       diego:
         auctioneer:
           bbs: *diego_bbs_client_properties
+          ca_cert: "((diego_auctioneer.ca))"
+          server_cert: "((diego_auctioneer_server.certificate))"
+          server_key: "((diego_auctioneer_server.private_key))"
   - name: metron_agent
     release: loggregator
     properties: *metron_agent_properties
@@ -1360,6 +1367,27 @@ variables:
     ext_key_usage:
     - client_auth
     - server_auth
+- name: diego_auctioneer
+  type: certificate
+  options:
+    common_name: auctioneerCA
+- name: diego_auctioneer_client
+  type: certificate
+  options:
+    ca: diego_auctioneer
+    common_name: auctioneer client
+    ext_key_usage:
+    - client_auth
+- name: diego_auctioneer_server
+  type: certificate
+  options:
+    ca: diego_auctioneer
+    common_name: auctioneer.service.cf.internal
+    ext_key_usage:
+    - server_auth
+    alternative_names:
+    - "*.auctioneer.service.cf.internal"
+    - auctioneer.service.cf.internal
 - name: diego_bbs
   type: certificate
   options:
